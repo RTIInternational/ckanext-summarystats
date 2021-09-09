@@ -14,6 +14,21 @@ maxdepth: 2
 
 This CKAN extension allows plugins to create summary statistics for a dataset that meets certain criteria. These summary stats are then uploaded to the dataset.
 
+## Requirements
+
+This plugin is compatible with CKAN 2.9 or later.
+
+## Installation
+
+```
+pip install -e "git+https://github.com/RTIInternational/ckanext-summarystats.git#egg=ckanext-summarystats"
+```
+
+## Usage
+
+This extension is not standalone but meant to be extended by your own CKAN plugin using the two provided interfaces.
+
+
 **Example summarystats usage in a plugin**
 
 ```
