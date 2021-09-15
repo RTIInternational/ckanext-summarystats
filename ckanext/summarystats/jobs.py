@@ -83,8 +83,7 @@ def stats_job(dataset_id):
         pkg.add_error(dataset["id"], message=GENERAL_ERROR_MSG, error_text=error_text)
     except NotImplementedError:
         log.error(traceback.format_exc())
-        error_text = "calculated summary statistics due to a duplicate molecule"
-        pkg.add_error(dataset["id"], message=DUPLICATE_MSG, error_text=error_text)
+        pkg.add_error(dataset["id"], message=DUPLICATE_MSG)
     except Exception:
         log.error(traceback.format_exc())
         pkg.add_error(

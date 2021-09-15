@@ -26,11 +26,11 @@ DUPLICATE_MSG = "duplicate"
 # Just a constant for blank string
 BLANK = ""
 
-# TODO: We need a way to pass in parser error messages from the implementation (DUPLICATE_MSG is a parser implementation-specific error message)
+# TODO: We need a way to pass in parser error messages from the implementation (DATA_FILE_MISSING_MSG is a parser implementation-specific error message)
 messages = {
     DATA_FILE_MISSING_MSG: "There was a problem generating summary statistics from the files you've uploaded. The following columns were NOT present in the data file: {error_text}",
     GENERAL_ERROR_MSG: "There was a problem generating {error_text} from the files you've specified. Please ensure that the data in these files are correct.",
-    DUPLICATE_MSG: "There was a problem generating summary statistics from the files you've uploaded. Please make sure there are no duplicate molecules in your data file.",
+    DUPLICATE_MSG: "There was a problem generating summary statistics from the files you've uploaded. Please make sure there are no duplicate rows in your data file.",
     "Usecols do not match columns, columns expected but not found": "There was a problem generating summary statistics from the files you've uploaded. The following columns were not present in the {file_type} file: {error_text}. Please make sure the {file_type} file is tab delimited and has the required columns.",
     "could not convert string to float": "There was a problem generating summary statistics from the files you've uploaded. In the {file_type} file, the following value cannot be converted to a numeric value: {error_text}.",
 }
