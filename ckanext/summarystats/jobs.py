@@ -4,7 +4,13 @@ import traceback
 import ckan.plugins.toolkit as toolkit
 from ckan.lib.jobs import job_from_id
 from .constants import TEMPDIR
-from .package_helper import package_helper, SUMSTATS_RSRC_TITLE, CONTEXT
+from .package_helper import (
+    DUPLICATE_MSG,
+    GENERAL_ERROR_MSG,
+    package_helper,
+    SUMSTATS_RSRC_TITLE,
+    site_user_context,
+)
 from .implementations import is_eligible, calculate_stats
 
 log = logging.getLogger(__name__)
@@ -63,7 +69,9 @@ def stats_job(dataset_id):
             if is_older_than(existing_rsrc, seconds=30):
                 old_id = existing_rsrc.get("id")
                 log.info("Deleting old summarystats {}".format(old_id))
-                toolkit.get_action("resource_delete")(CONTEXT, {"id": old_id})
+                toolkit.get_action("resource_delete")(
+                    site_user_context(), {"id": old_id}
+                )
             else:
                 log.info("SKIPPING creating summarystats resource. It was just made.")
                 return
@@ -72,15 +80,17 @@ def stats_job(dataset_id):
     except KeyError:
         log.error(traceback.format_exc())
         error_text = "calculated summary statistics due to an unrecognized column name"
-        pkg.add_error(dataset["id"], message="error", error_text=error_text)
+        pkg.add_error(dataset["id"], message=GENERAL_ERROR_MSG, error_text=error_text)
     except NotImplementedError:
         log.error(traceback.format_exc())
         error_text = "calculated summary statistics due to a duplicate molecule"
-        pkg.add_error(dataset["id"], message="duplicate", error_text=error_text)
+        pkg.add_error(dataset["id"], message=DUPLICATE_MSG, error_text=error_text)
     except Exception:
         log.error(traceback.format_exc())
         pkg.add_error(
-            dataset["id"], message="error", error_text="calculated summary statistics"
+            dataset["id"],
+            message=GENERAL_ERROR_MSG,
+            error_text="calculated summary statistics",
         )
     # Retrieving package again now that it has the newly added resource
     dataset = toolkit.get_action("package_show")(
