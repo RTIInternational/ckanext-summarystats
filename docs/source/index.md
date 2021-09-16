@@ -37,7 +37,7 @@ from ckanext.summarystats.interfaces import ISummaryStats
 class MyPlugin(plugins.SingletonPlugin):
     plugins.implements(ISummaryStats)
 
-    def is_eligible(self, dataset):
+    def is_eligible_for_summarystats(self, dataset):
         """
         Returns a boolean to determine if summary stats should be
         calculated for the given dataset
@@ -46,7 +46,7 @@ class MyPlugin(plugins.SingletonPlugin):
         if dataset.get("data_type") == "math":
             return True
 
-    def calculate_stats(self, dataset):
+    def calculate_summarystats(self, dataset):
         """
         Calculates summary statistics for a given dataset and
         returns a pandas data frame
@@ -64,11 +64,11 @@ class MyPlugin(plugins.SingletonPlugin):
         return stats_df
 ```
 
-When a dataset's resource is created or updated, summarystats will call `is_eligible` to see if it should `calculate_stats`.
+When a dataset's resource is created or updated, summarystats will call `is_eligible_for_summarystats` to see if it should `calculate_summarystats`.
 
 ## What sort of summary stats might be calculated?
 
-A simple example could be a dataset containing tabular data resources where each row is a person's favorite food. Using this plugin, you could implement a `is_eligible` function that checks if the dataset does indeed contain such data, then implement a `calculate_stats` function to summarize the data to determine the top 10 favorite foods in the dataset.
+A simple example could be a dataset containing tabular data resources where each row is a person's favorite food. Using this plugin, you could implement a `is_eligible_for_summarystats` function that checks if the dataset does indeed contain such data, then implement a `calculate_summarystats` function to summarize the data to determine the top 10 favorite foods in the dataset.
 
 ## Handling errors
 

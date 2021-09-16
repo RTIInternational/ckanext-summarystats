@@ -4,8 +4,8 @@ TEMPDIR = "/tmp/"
 
 class SumstatsCalcError(Exception):
     """
-    For implementations of calculate_stats to use if the parser needs to throw an error to display
-    to the user
+    For implementations of calculate_summarystats to use if the parser needs to throw an error to
+    display to the user
     """
 
     pass

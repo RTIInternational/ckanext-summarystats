@@ -13,10 +13,8 @@ class SummarystatsMockPlugin(p.SingletonPlugin):
 
     p.implements(ISummaryStats)
 
-    def is_eligible(self, dataset):
+    def is_eligible_for_summarystats(self, dataset):
         return True
 
-    def calculate_stats(self, dataset):
+    def calculate_summarystats(self, dataset):
         return pd.DataFrame(["Dummy", "List"])
-
-    # More methods to be added later
