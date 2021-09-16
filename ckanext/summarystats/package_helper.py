@@ -49,17 +49,34 @@ class package_helper:
     def has_error_message(self, key):
         return key in messages
 
-    def add_error(self, package_id, message, error_text=None, file_type=None):
+    def add_error(
+        self, package_id, err_code=None, error_text=None, file_type=None, expected=False
+    ):
+        """
+        For implementors, raise SumstatsCalcError(error_message) to have this function apply
+        the error_message to the dataset.
+        """
         package = toolkit.get_action("package_show")(
             {"ignore_auth": True}, {"id": package_id}
         )
-        pkg_text = messages.get(message)
-        if error_text:
-            pkg_text = pkg_text.format(error_text=str(error_text), file_type=file_type)
+        pkg_text = ""
+        if err_code is not None:
+            pkg_text = messages.get(err_code)
+            if error_text:
+                pkg_text = pkg_text.format(
+                    error_text=str(error_text), file_type=file_type
+                )
+        else:
+            pkg_text = error_text
+
         package[SUMMARY_STATS_ERROR] = pkg_text
         package[PROCESSING] = BLANK
         toolkit.get_action("package_update")(site_user_context(), package)
-        sys.exit(1)
+        if expected:
+            log.info("User error: {}".format(pkg_text))
+            return
+        else:
+            sys.exit(1)  # prints tracebacks
 
     def add_message(self, package_id):
         package = toolkit.get_action("package_show")(

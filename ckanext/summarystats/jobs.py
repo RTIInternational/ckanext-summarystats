@@ -3,7 +3,7 @@ import logging
 import traceback
 import ckan.plugins.toolkit as toolkit
 from ckan.lib.jobs import job_from_id
-from .constants import TEMPDIR
+from .constants import TEMPDIR, SumstatsCalcError
 from .package_helper import (
     DUPLICATE_MSG,
     GENERAL_ERROR_MSG,
@@ -77,18 +77,20 @@ def stats_job(dataset_id):
                 return
         log.info("Uploading summarystats for dataset {}".format(dataset_id))
         pkg.add_file(filename, SUMSTATS_RSRC_TITLE, dataset_id)
+    except SumstatsCalcError as e:
+        return pkg.add_error(dataset["id"], error_text=str(e), expected=True)
     except KeyError:
         log.error(traceback.format_exc())
         error_text = "calculated summary statistics due to an unrecognized column name"
-        pkg.add_error(dataset["id"], message=GENERAL_ERROR_MSG, error_text=error_text)
+        pkg.add_error(dataset["id"], err_code=GENERAL_ERROR_MSG, error_text=error_text)
     except NotImplementedError:
         log.error(traceback.format_exc())
-        pkg.add_error(dataset["id"], message=DUPLICATE_MSG)
+        pkg.add_error(dataset["id"], err_code=DUPLICATE_MSG)
     except Exception:
         log.error(traceback.format_exc())
         pkg.add_error(
             dataset["id"],
-            message=GENERAL_ERROR_MSG,
+            err_code=GENERAL_ERROR_MSG,
             error_text="calculated summary statistics",
         )
     # Retrieving package again now that it has the newly added resource
