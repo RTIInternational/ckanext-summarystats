@@ -29,7 +29,10 @@ def summarystats():
 @summarystats.command()
 @click.argument(u"dataset-spec")
 @click.option(
-    "--fg", is_flag=True, default=False, help="Runs the gene tagger in the foreground"
+    "--fg",
+    is_flag=True,
+    default=False,
+    help="Runs the summarystats job in the foreground",
 )
 def submit(dataset_spec, fg):
     """

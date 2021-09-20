@@ -66,10 +66,10 @@ class MyPlugin(plugins.SingletonPlugin):
 
 When a dataset's resource is created or updated, summarystats will call `is_eligible_for_summarystats` to see if it should `calculate_summarystats`.
 
+## Handling Errors and Schema
+
+If the user's data is not correctly formatted for calculating summary statistics, raise `SumstatsCalcError(error_message)`. Any error encountered when generating summary stats will be saved to the dataset on the `summarystats_error` field. While processing, the `summarystats_processing` field is set to `True`. These fields must be added to your dataset schema if you want them available on the dataset.
+
 ## What sort of summary stats might be calculated?
 
 A simple example could be a dataset containing tabular data resources where each row is a person's favorite food. Using this plugin, you could implement a `is_eligible_for_summarystats` function that checks if the dataset does indeed contain such data, then implement a `calculate_summarystats` function to summarize the data to determine the top 10 favorite foods in the dataset.
-
-## Handling errors
-
-If the user's data is not correctly formatted for calculating summary statistics, raise `SumstatsCalcError(error_message)` and the error message will be saved to the dataset on the `summary_stats_error` field.

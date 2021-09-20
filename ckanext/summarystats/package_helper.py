@@ -14,9 +14,9 @@ from werkzeug.datastructures import FileStorage
 log = logging.getLogger(__name__)
 
 
-# TODO: These are dataset schema dependencies; they are required to be present in the dataset schema
-SUMMARY_STATS_ERROR = "summary_stats_error"
-PROCESSING = "processing"
+# These are dataset schema dependencies; they are required to be present in the dataset schema if you want to use them
+SUMMARY_STATS_ERROR = "summarystats_error"
+SUMMARY_STATS_PROCESSING = "summarystats_processing"
 
 PROCESSING_MSG = "The resources you have uploaded are currently being processed for summary statistics. Please refresh the page or check back soon to see them completed."
 GENERAL_ERROR_MSG = "error"
@@ -26,7 +26,7 @@ DUPLICATE_MSG = "duplicate"
 # Just a constant for blank string
 BLANK = ""
 
-# TODO: We need a way to pass in parser error messages from the implementation (DATA_FILE_MISSING_MSG is a parser implementation-specific error message)
+# Not sure if all of these are still used
 messages = {
     DATA_FILE_MISSING_MSG: "There was a problem generating summary statistics from the files you've uploaded. The following columns were NOT present in the data file: {error_text}",
     GENERAL_ERROR_MSG: "There was a problem generating {error_text} from the files you've specified. Please ensure that the data in these files are correct.",
@@ -70,7 +70,7 @@ class package_helper:
             pkg_text = error_text
 
         package[SUMMARY_STATS_ERROR] = pkg_text
-        package[PROCESSING] = BLANK
+        package[SUMMARY_STATS_PROCESSING] = BLANK
         toolkit.get_action("package_update")(site_user_context(), package)
         if expected:
             log.info("User error: {}".format(pkg_text))
@@ -82,7 +82,7 @@ class package_helper:
         package = toolkit.get_action("package_show")(
             {"ignore_auth": True}, {"id": package_id}
         )
-        package[PROCESSING] = PROCESSING_MSG
+        package[SUMMARY_STATS_PROCESSING] = PROCESSING_MSG
         package[SUMMARY_STATS_ERROR] = BLANK
         toolkit.get_action("package_update")(site_user_context(), package)
 
@@ -118,7 +118,7 @@ class package_helper:
                 {"ignore_auth": True}, {"id": package["id"]}
             )
             updatedPackage[SUMMARY_STATS_ERROR] = BLANK
-            updatedPackage[PROCESSING] = BLANK
+            updatedPackage[SUMMARY_STATS_PROCESSING] = BLANK
             final = toolkit.get_action("package_update")(
                 site_user_context(), updatedPackage
             )
