@@ -30,5 +30,5 @@ class SummarystatsPlugin(plugins.SingletonPlugin):
 
     # Runs after a resource has been updated
     def after_update(self, context, resource):
-        if context["file_uploaded"]:
+        if context.get("file_uploaded"):
             enqueue_stats_job(resource)
