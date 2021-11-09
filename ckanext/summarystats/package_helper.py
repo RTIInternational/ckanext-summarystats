@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
 import os
-import sys
 
 from ckan import model
 from ckan.common import config
@@ -75,8 +74,6 @@ class package_helper:
         if expected:
             log.info("User error: {}".format(pkg_text))
             return
-        else:
-            sys.exit(1)  # prints tracebacks
 
     def add_message(self, package_id):
         package = toolkit.get_action("package_show")(

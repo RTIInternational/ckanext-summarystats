@@ -78,7 +78,8 @@ def stats_job(dataset_id):
         log.info("Uploading summarystats for dataset {}".format(dataset_id))
         pkg.add_file(filename, SUMSTATS_RSRC_TITLE, dataset_id)
     except SumstatsCalcError as e:
-        return pkg.add_error(dataset["id"], error_text=str(e), expected=True)
+        pkg.add_error(dataset["id"], error_text=str(e), expected=True)
+        raise
     except KeyError:
         log.error(traceback.format_exc())
         error_text = "calculated summary statistics due to an unrecognized column name"
@@ -87,12 +88,13 @@ def stats_job(dataset_id):
         log.error(traceback.format_exc())
         pkg.add_error(dataset["id"], err_code=DUPLICATE_MSG)
     except Exception:
-        log.error(traceback.format_exc())
+        # log.error(traceback.format_exc())
         pkg.add_error(
             dataset["id"],
             err_code=GENERAL_ERROR_MSG,
             error_text="calculated summary statistics",
         )
+        raise
     # Retrieving package again now that it has the newly added resource
     dataset = toolkit.get_action("package_show")(
         {"ignore_auth": True}, {"id": dataset_id}
