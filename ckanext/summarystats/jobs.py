@@ -38,7 +38,7 @@ def enqueue_stats_job(resource):
                         "job_id": job_id,
                         "timeout": 21600,
                     },
-                    queue=u"summarystats",
+                    queue="summarystats",
                 )
 
 
@@ -69,8 +69,9 @@ def stats_job(dataset_id):
             if is_older_than(existing_rsrc, seconds=30):
                 old_id = existing_rsrc.get("id")
                 log.info("Deleting old summarystats {}".format(old_id))
-                toolkit.get_action("resource_delete")(
-                    site_user_context(), {"id": old_id}
+                toolkit.get_action("package_revise")(
+                    site_user_context(),
+                    {"match__id": dataset_id, "filter": [f"-resources__{old_id}"]},
                 )
             else:
                 log.info("SKIPPING creating summarystats resource. It was just made.")

@@ -70,7 +70,16 @@ class package_helper:
 
         package[SUMMARY_STATS_ERROR] = pkg_text
         package[SUMMARY_STATS_PROCESSING] = BLANK
-        toolkit.get_action("package_update")(site_user_context(), package)
+        toolkit.get_action("package_revise")(
+            site_user_context(),
+            {
+                "match__id": package_id,
+                "update": {
+                    SUMMARY_STATS_ERROR: pkg_text,
+                    SUMMARY_STATS_PROCESSING: BLANK,
+                },
+            },
+        )
         if expected:
             log.info("User error: {}".format(pkg_text))
             return
@@ -81,7 +90,16 @@ class package_helper:
         )
         package[SUMMARY_STATS_PROCESSING] = PROCESSING_MSG
         package[SUMMARY_STATS_ERROR] = BLANK
-        toolkit.get_action("package_update")(site_user_context(), package)
+        toolkit.get_action("package_revise")(
+            site_user_context(),
+            {
+                "match__id": package_id,
+                "update": {
+                    SUMMARY_STATS_PROCESSING: PROCESSING_MSG,
+                    SUMMARY_STATS_ERROR: BLANK,
+                },
+            },
+        )
 
     def add_file(self, path, name, package_id):
         package = toolkit.get_action("package_show")(
@@ -89,26 +107,42 @@ class package_helper:
         )
         with open(TEMPDIR + path, "rb") as file:
             statsfile = None
+            rsc_id = None
             for resource in package["resources"]:
                 if resource["name"] == path:
                     statsfile = resource
+                    rsc_id = resource["id"]
                     break
 
             resource_metadata = {
                 "name": SUMSTATS_RSRC_TITLE,
                 "resource_file_type": SUMSTATS_RSRC_TITLE,
                 "package_id": package["id"],
-                "upload": FileStorage(file),
                 "format": "tsv",
                 "generated": True,
             }
             if statsfile:
-                action = "resource_update"
+                # action = "resource_update"
                 resource_metadata["id"] = statsfile["id"]
+                toolkit.get_action("package_revise")(
+                    site_user_context(),
+                    {
+                        "match__id": package_id,
+                        f"update__resources__{rsc_id}": resource_metadata,
+                        f"update__resources__{rsc_id}__upload": FileStorage(file),
+                    },
+                )
             else:
-                action = "resource_create"
+                # action = "resource_create"
+                toolkit.get_action("package_revise")(
+                    site_user_context(),
+                    {
+                        "match__id": package_id,
+                        "update__resources__extend": resource_metadata,
+                        "update__resources__-1__upload": FileStorage(file),
+                    },
+                )
 
-            toolkit.get_action(action)(site_user_context(), resource_metadata)
             os.remove("/tmp/" + path)
 
             updatedPackage = toolkit.get_action("package_show")(
@@ -116,10 +150,17 @@ class package_helper:
             )
             updatedPackage[SUMMARY_STATS_ERROR] = BLANK
             updatedPackage[SUMMARY_STATS_PROCESSING] = BLANK
-            final = toolkit.get_action("package_update")(
-                site_user_context(), updatedPackage
+            final = toolkit.get_action("package_revise")(
+                site_user_context(),
+                {
+                    "match__id": package_id,
+                    "update": {
+                        SUMMARY_STATS_ERROR: BLANK,
+                        SUMMARY_STATS_PROCESSING: BLANK,
+                    },
+                },
             )
-            return final
+            return final.get("package")
 
     def get_sumstats_resource(self, dataset):
         for resource in dataset.get("resources"):
