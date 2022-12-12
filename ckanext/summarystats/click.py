@@ -27,7 +27,7 @@ def summarystats():
 
 
 @summarystats.command()
-@click.argument(u"dataset-spec")
+@click.argument("dataset-spec")
 @click.option(
     "--fg",
     is_flag=True,
