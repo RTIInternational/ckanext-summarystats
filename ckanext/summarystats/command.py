@@ -55,7 +55,7 @@ class SummaryStatsCmd:
                     stats_job,
                     [dataset_id],
                     rq_kwargs={"timeout": 21600},
-                    queue=u"summarystats",
+                    queue="summarystats",
                 )
         else:
             log.info(

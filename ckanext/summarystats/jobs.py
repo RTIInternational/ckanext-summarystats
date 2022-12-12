@@ -38,7 +38,7 @@ def enqueue_stats_job(resource):
                         "job_id": job_id,
                         "timeout": 21600,
                     },
-                    queue=u"summarystats",
+                    queue="summarystats",
                 )
 
 
@@ -55,12 +55,6 @@ def stats_job(dataset_id):
         dataset = toolkit.get_action("package_show")(
             {"ignore_auth": True}, {"id": dataset_id}
         )
-        stats_dataframe = calculate_stats(dataset)
-
-        # Write stats to file
-        today = date.today().isoformat()
-        filename = "{}-summary-stats-{}.tsv".format(dataset.get("name"), today)
-        stats_dataframe.to_csv(TEMPDIR + filename, sep="\t")
 
         # Check if a summarystats resource already exists
         # and delete it if it's older than 30 seconds
@@ -69,12 +63,21 @@ def stats_job(dataset_id):
             if is_older_than(existing_rsrc, seconds=30):
                 old_id = existing_rsrc.get("id")
                 log.info("Deleting old summarystats {}".format(old_id))
-                toolkit.get_action("resource_delete")(
-                    site_user_context(), {"id": old_id}
+                toolkit.get_action("package_revise")(
+                    site_user_context(),
+                    {"match__id": dataset_id, "filter": [f"-resources__{old_id}"]},
                 )
             else:
                 log.info("SKIPPING creating summarystats resource. It was just made.")
                 return
+
+        stats_dataframe = calculate_stats(dataset)
+
+        # Write stats to file
+        today = date.today().isoformat()
+        filename = "{}-summary-stats-{}.tsv".format(dataset.get("name"), today)
+        stats_dataframe.to_csv(TEMPDIR + filename, sep="\t")
+
         log.info("Uploading summarystats for dataset {}".format(dataset_id))
         pkg.add_file(filename, SUMSTATS_RSRC_TITLE, dataset_id)
     except SumstatsCalcError as e:
