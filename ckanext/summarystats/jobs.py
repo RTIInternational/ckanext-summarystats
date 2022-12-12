@@ -55,12 +55,6 @@ def stats_job(dataset_id):
         dataset = toolkit.get_action("package_show")(
             {"ignore_auth": True}, {"id": dataset_id}
         )
-        stats_dataframe = calculate_stats(dataset)
-
-        # Write stats to file
-        today = date.today().isoformat()
-        filename = "{}-summary-stats-{}.tsv".format(dataset.get("name"), today)
-        stats_dataframe.to_csv(TEMPDIR + filename, sep="\t")
 
         # Check if a summarystats resource already exists
         # and delete it if it's older than 30 seconds
@@ -76,6 +70,14 @@ def stats_job(dataset_id):
             else:
                 log.info("SKIPPING creating summarystats resource. It was just made.")
                 return
+
+        stats_dataframe = calculate_stats(dataset)
+
+        # Write stats to file
+        today = date.today().isoformat()
+        filename = "{}-summary-stats-{}.tsv".format(dataset.get("name"), today)
+        stats_dataframe.to_csv(TEMPDIR + filename, sep="\t")
+
         log.info("Uploading summarystats for dataset {}".format(dataset_id))
         pkg.add_file(filename, SUMSTATS_RSRC_TITLE, dataset_id)
     except SumstatsCalcError as e:
