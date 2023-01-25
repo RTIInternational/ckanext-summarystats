@@ -138,7 +138,7 @@ class package_helper:
                     site_user_context(),
                     {
                         "match__id": package_id,
-                        "update__resources__extend": resource_metadata,
+                        "update__resources__extend": [resource_metadata],
                         "update__resources__-1__upload": FileStorage(file),
                     },
                 )
